@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 class Task
 {
@@ -9,40 +10,19 @@ class Task
     public DateTime DueDate { get; set; }
     public bool Status { get; set; }
 
-    public void SetTitle(string title)
-    {
-        // Set the title of the task
-    }
-
-    public void SetDescription(string description)
-    {
-        // Set the description of the task
-    }
-
-    public void SetPriority(int priority)
-    {
-        // Set the priority of the task
-    }
-
-    public void SetDueDate(DateTime dueDate)
-    {
-        // Set the due date of the task
-    }
-
-    public void SetStatus(bool status)
-    {
-        // Set the status of the task
-    }
-
     public void DisplayTaskDetails()
     {
-        // Display the details of the task
+        Console.WriteLine($"Title: {Title}");
+        Console.WriteLine($"Description: {Description}");
+        Console.WriteLine($"Priority: {Priority}");
+        Console.WriteLine($"Due Date: {DueDate}");
+        Console.WriteLine($"Status: {(Status ? "Completed" : "Pending")}");
     }
 }
 
 class TaskManager
 {
-    public List<Task> Tasks { get; set; }
+    public List<Task> Tasks { get; }
 
     public TaskManager()
     {
@@ -51,29 +31,22 @@ class TaskManager
 
     public void AddTask(Task task)
     {
-        // Add a task to the task list
+        Tasks.Add(task);
     }
 
     public void RemoveTask(Task task)
     {
-        // Remove a task from the task list
-    }
-
-    public void EditTask(Task oldTask, Task newTask)
-    {
-        // Edit an existing task
-    }
-
-    public Task GetTask(string title)
-    {
-        // Get a task by title
-        return null;
+        Tasks.Remove(task);
     }
 
     public List<Task> GetAllTasks()
     {
-        // Get all tasks
-        return null;
+        return Tasks;
+    }
+
+    public List<Task> GetTasksByPriority(int priority)
+    {
+        return Tasks.FindAll(task => task.Priority == priority);
     }
 }
 
@@ -81,60 +54,10 @@ class TaskViewer
 {
     public void DisplayTaskList(List<Task> tasks)
     {
-        // Display a list of tasks
-    }
-
-    public void DisplayTaskDetails(Task task)
-    {
-        // Display details of a specific task
-    }
-}
-
-class TaskEditor
-{
-    public Task CreateTask(string title, string description, int priority, DateTime dueDate)
-    {
-        // Create a new task
-        return null;
-    }
-
-    public void EditTaskDetails(Task task, string newTitle, string newDescription, int newPriority, DateTime newDueDate)
-    {
-        // Edit details of an existing task
-    }
-}
-
-class TaskSorter
-{
-    public List<Task> SortByPriority(List<Task> tasks)
-    {
-        // Sort tasks by priority
-        return null;
-    }
-
-    public List<Task> SortByDueDate(List<Task> tasks)
-    {
-        // Sort tasks by due date
-        return null;
-    }
-
-    public List<Task> SortByStatus(List<Task> tasks)
-    {
-        // Sort tasks by status
-        return null;
-    }
-}
-
-class TaskReminder
-{
-    public void SetReminder(Task task, DateTime reminderDateTime)
-    {
-        // Set a reminder for a task
-    }
-
-    public void CancelReminder(Task task)
-    {
-        // Cancel a reminder for a task
+        foreach (var task in tasks)
+        {
+            Console.WriteLine($"- {task.Title}");
+        }
     }
 }
 
@@ -142,22 +65,97 @@ class TaskReporter
 {
     public void GenerateTaskReport(List<Task> tasks)
     {
-        // Generate a report based on tasks
+        Console.WriteLine("Task Report:");
+        foreach (var task in tasks)
+        {
+            task.DisplayTaskDetails();
+            Console.WriteLine();
+        }
     }
 }
 
-class UserInputHandler
-{
-    public void HandleInput(string userInput)
-    {
-        // Handle user input and interact with other classes
-    }
-}
-
+[DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
 class Program
 {
     static void Main(string[] args)
     {
-        // Program entry point
+        TaskManager taskManager = new TaskManager();
+        TaskViewer taskViewer = new TaskViewer();
+        TaskReporter taskReporter = new TaskReporter();
+
+        while (true)
+        {
+            Console.WriteLine("1. Add Task");
+            Console.WriteLine("2. Remove Task");
+            Console.WriteLine("3. View All Tasks");
+            Console.WriteLine("4. Generate Task Report");
+            Console.WriteLine("5. Exit");
+            Console.Write("Enter your choice: ");
+            int choice = int.Parse(Console.ReadLine());
+
+            switch (choice)
+            {
+                case 1:
+                    Console.Write("Enter task title: ");
+                    string title = Console.ReadLine();
+                    Console.Write("Enter task description: ");
+                    string description = Console.ReadLine();
+                    Console.Write("Enter task priority: ");
+                    int priority = int.Parse(Console.ReadLine());
+                    Console.Write("Enter task due date (yyyy-mm-dd): ");
+                    DateTime dueDate = DateTime.Parse(Console.ReadLine());
+
+                    Task newTask = new Task
+                    {
+                        Title = title,
+                        Description = description,
+                        Priority = priority,
+                        DueDate = dueDate
+                    };
+
+                    taskManager.AddTask(newTask);
+                    Console.WriteLine("Task added successfully!");
+                    break;
+
+                case 2:
+                    Console.WriteLine("Enter the title of the task to remove: ");
+                    string titleToRemove = Console.ReadLine();
+                    Task taskToRemove = taskManager.Tasks.Find(task => task.Title == titleToRemove);
+                    if (taskToRemove != null)
+                    {
+                        taskManager.RemoveTask(taskToRemove);
+                        Console.WriteLine("Task removed successfully!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Task not found!");
+                    }
+                    break;
+
+                case 3:
+                    Console.WriteLine("All Tasks:");
+                    taskViewer.DisplayTaskList(taskManager.GetAllTasks());
+                    break;
+
+                case 4:
+                    taskReporter.GenerateTaskReport(taskManager.GetAllTasks());
+                    break;
+
+                case 5:
+                    Console.WriteLine("Exiting...");
+                    return;
+
+                default:
+                    Console.WriteLine("Invalid choice!");
+                    break;
+            }
+
+            Console.WriteLine();
+        }
+    }
+
+    private string GetDebuggerDisplay()
+    {
+        return ToString();
     }
 }
